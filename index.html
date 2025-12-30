@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Wesam AI Editor Pro</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #1e1e1e; color: #d4d4d4; 
+            font-family: 'Segoe UI', sans-serif; overflow: hidden;
+        }
+        .app-container { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+        .content-area { flex: 1; display: flex; overflow: hidden; }
+        
+        /* الشريط الجانبي */
+        .vs-sidebar {
+            width: 50px; background: #333333; border-left: 1px solid #252526;
+            display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 15px;
+        }
+        .icon-btn { 
+            width: 35px; height: 35px; background: #444; border-radius: 5px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white;
+        }
+        .icon-btn:hover { background: #007acc; }
+
+        .editors-container { 
+            flex: 1; display: flex; flex-direction: column; 
+            border-left: 1px solid #3c3c3c; gap: 2px; background: #252526;
+        }
+        
+        .editor-box { flex: 1; display: flex; flex-direction: column; background: #1e1e1e; position: relative; }
+        
+        .pane-title { 
+            background: #2d2d2d; padding: 5px 15px; font-size: 11px; 
+            color: #007acc; border-bottom: 1px solid #3c3c3c;
+            font-weight: bold;
+        }
+
+        /* طبقة اقتراح الذكاء الاصطناعي (Ghost Text) */
+        .ai-ghost {
+            position: absolute; top: 27px; left: 10px; right: 10px;
+            font-family: 'Consolas', monospace; font-size: 14px;
+            color: rgba(156, 220, 254, 0.2); pointer-events: none; white-space: pre-wrap; z-index: 1;
+            line-height: 1.5;
+        }
+
+        textarea { 
+            flex: 1; background: transparent; color: #9cdcfe; 
+            padding: 10px; font-family: 'Consolas', monospace; 
+            font-size: 14px; border: none; outline: none; resize: none; 
+            z-index: 2; position: relative; line-height: 1.5;
+        }
+
+        .preview-pane { flex: 1; background: white; display: flex; flex-direction: column; }
+        iframe { flex: 1; border: none; width: 100%; height: 100%; background: white; }
+
+        .status-bar { height: 25px; background: #007acc; color: white; font-size: 12px; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="content-area">
+            <div class="vs-sidebar">
+                <div class="icon-btn" onclick="downloadProject()" title="تحميل المشروع">⬇️</div>
+                <div class="icon-btn" onclick="alert('AI is Active!')" title="الذكاء فعال">🤖</div>
+            </div>
+
+            <div class="editors-container">
+                <div class="editor-box">
+                    <div class="pane-title" style="color: #e34c26;">HTML</div>
+                    <div id="html-ghost" class="ai-ghost"></div>
+                    <textarea id="html-code" spellcheck="false" oninput="handleAI('html')"></textarea>
+                </div>
+                <div class="editor-box">
+                    <div class="pane-title" style="color: #264de4;">CSS</div>
+                    <div id="css-ghost" class="ai-ghost"></div>
+                    <textarea id="css-code" spellcheck="false" oninput="handleAI('css')"></textarea>
+                </div>
+                <div class="editor-box">
+                    <div class="pane-title" style="color: #f7df1e;">JS</div>
+                    <div id="js-ghost" class="ai-ghost"></div>
+                    <textarea id="js-code" spellcheck="false" oninput="handleAI('js')"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-pane">
+                <div class="pane-title" style="background:#f3f3f3; color:#333;">Live Preview</div>
+                <iframe id="wesam-result"></iframe>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <span>Wesam Pro AI Editor | اضغط Tab لقبول اقتراح الذكاء</span>
+            <span id="char-count">Chars: 0</span>
+        </div>
+    </div>
+
+    <script>
+        const htmlInput = document.getElementById('html-code');
+        const cssInput = document.getElementById('css-code');
+        const jsInput = document.getElementById('js-code');
+        const output = document.getElementById('wesam-result');
+
+        // عقل الذكاء الاصطناعي (Predictive AI)
+        const aiDatabase = {
+            html: { "<!": "<!DOCTYPE html>\n<html lang='ar'>\n<head>\n <meta charset='UTF-8'>\n</head>\n<body>\n\n</body>\n</html>", "<bu": "<button onclick='greet()'>اضغط هنا</button>" },
+            css: { "bo": "body {\n background: #f4f4f4;\n font-family: sans-serif;\n}", "h1": "h1 {\n color: #007acc;\n text-align: center;\n}" },
+            js: { "fu": "function greet() {\n alert('مرحباً من وسام!');\n}", "co": "console.log('تم تشغيل الكود');" }
+        };
+
+        function handleAI(type) {
+            const input = document.getElementById(`${type}-code`);
+            const ghost = document.getElementById(`${type}-ghost`);
+            const val = input.value;
+            const lastLine = val.split('\n').pop().trim();
+            
+            let suggestion = "";
+            if (lastLine.length > 1) {
+                for (let key in aiDatabase[type]) {
+                    if (key.startsWith(lastLine)) {
+                        suggestion = aiDatabase[type][key];
+                        break;
+                    }
+                }
+            }
+            ghost.innerText = suggestion ? val + suggestion.substring(lastLine.length) : "";
+            updatePreview();
+        }
+
+        // قبول الاقتراح بالـ Tab
+        [htmlInput, cssInput, jsInput].forEach(el => {
+            el.addEventListener('keydown', function(e) {
+                const type = this.id.split('-')[0];
+                const ghost = document.getElementById(`${type}-ghost`);
+                if (e.key === 'Tab' && ghost.innerText !== "") {
+                    e.preventDefault();
+                    const lastLine = this.value.split('\n').pop().trim();
+                    for (let key in aiDatabase[type]) {
+                        if (key.startsWith(lastLine)) {
+                            const before = this.value.substring(0, this.value.length - lastLine.length);
+                            this.value = before + aiDatabase[type][key];
+                            break;
+                        }
+                    }
+                    ghost.innerText = "";
+                    updatePreview();
+                }
+            });
+        });
+
+        function updatePreview() {
+            const combined = `${htmlInput.value}<style>${cssInput.value}</style><script>${jsInput.value}<\/script>`;
+            const doc = output.contentWindow.document;
+            doc.open(); doc.write(combined); doc.close();
+            document.getElementById('char-count').innerText = `Chars: ${combined.length}`;
+        }
+
+        function downloadProject() {
+            const finalCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>${cssInput.value}</style>\n</head>\n<body>\n${htmlInput.value}\n<script>${jsInput.value}<\/script>\n</body>\n</html>`;
+            const blob = new Blob([finalCode], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "wesam_project.html";
+            a.click();
+        }
+
+        window.onload = () => {
+            htmlInput.value = "<h1>أهلاً بك</h1>";
+            updatePreview();
+        };
+    </script>
+</body>
+</html>
