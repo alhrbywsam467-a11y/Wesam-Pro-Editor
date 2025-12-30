@@ -168,8 +168,49 @@
 
         window.onload = () => {
             htmlInput.value = "<h1>أهلاً بك</h1>";
-            updatePreview();
+           <script>
+  // 1. تحديد أماكن الكتابة
+  const htmlInput = document.getElementById('htmlCode');
+  const cssInput = document.getElementById('cssCode');
+  const jsInput = document.getElementById('jsCode');
+
+  // 2. وظيفة استرجاع الكود من ذاكرة المتصفح أول ما يفتح الموقع
+  window.addEventListener('load', () => {
+    const h = localStorage.getItem('wesam_html');
+    const c = localStorage.getItem('wesam_css');
+    const j = localStorage.getItem('wesam_js');
+
+    if (h !== null) htmlInput.value = h;
+    if (c !== null) cssInput.value = c;
+    if (j !== null) jsInput.value = j;
+
+    // تشغيل الكود فوراً عشان تظهر النتيجة
+    if (typeof run === 'function') {
+      run();
+    }
+  });
+
+  // 3. مراقبة الكتابة وحفظ كل حرف يكتبه المستخدم
+  [htmlInput, cssInput, jsInput].forEach(el => {
+    if (el) {
+      el.addEventListener('input', () => {
+        localStorage.setItem('wesam_html', htmlInput.value);
+        localStorage.setItem('wesam_css', cssInput.value);
+        localStorage.setItem('wesam_js', jsInput.value);
+        
+        // تحديث المعاينة تلقائياً أثناء الكتابة
+        if (typeof run === 'function') {
+          run();
+        }
+      });
+    }
+  });
+
+  // 4. ميزة إضافية: تنبيه عند الحفظ (يظهر في الكونسول فقط)
+  console.log("Wesam System: Auto-Save & History Active ✅");
+</script> updatePreview();
         };
     </script>
 </body>
+
 </html>
