@@ -168,49 +168,43 @@
 
         window.onload = () => {
             htmlInput.value = "<h1>أهلاً بك</h1>";
-           <script>
-  // 1. تحديد أماكن الكتابة
+           <script><script>
+  // 1. تعريف عناصر الإدخال
   const htmlInput = document.getElementById('htmlCode');
   const cssInput = document.getElementById('cssCode');
   const jsInput = document.getElementById('jsCode');
 
-  // 2. وظيفة استرجاع الكود من ذاكرة المتصفح أول ما يفتح الموقع
+  // 2. وظيفة تحميل الملف كـ HTML
+  function downloadProject() {
+    const finalCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>${cssInput.value}<\/style>\n<\/head>\n<body>\n${htmlInput.value}\n<script>${jsInput.value}<\/script>\n<\/body>\n<\/html>`;
+    const blob = new Blob([finalCode], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "wesam_project.html";
+    a.click();
+  }
+
+  // 3. استرجاع الكود المحفوظ عند تشغيل الصفحة
   window.addEventListener('load', () => {
-    const h = localStorage.getItem('wesam_html');
-    const c = localStorage.getItem('wesam_css');
-    const j = localStorage.getItem('wesam_js');
-
-    if (h !== null) htmlInput.value = h;
-    if (c !== null) cssInput.value = c;
-    if (j !== null) jsInput.value = j;
-
-    // تشغيل الكود فوراً عشان تظهر النتيجة
-    if (typeof run === 'function') {
-      run();
-    }
+    htmlInput.value = localStorage.getItem('wesam_html') || "<h1>أهلاً بك في محرر وسام</h1>";
+    cssInput.value = localStorage.getItem('wesam_css') || "";
+    jsInput.value = localStorage.getItem('wesam_js') || "";
+    if (typeof run === 'function') run();
   });
 
-  // 3. مراقبة الكتابة وحفظ كل حرف يكتبه المستخدم
+  // 4. نظام الحفظ التلقائي مع كل حرف تكتبه
   [htmlInput, cssInput, jsInput].forEach(el => {
     if (el) {
       el.addEventListener('input', () => {
         localStorage.setItem('wesam_html', htmlInput.value);
         localStorage.setItem('wesam_css', cssInput.value);
         localStorage.setItem('wesam_js', jsInput.value);
-        
-        // تحديث المعاينة تلقائياً أثناء الكتابة
-        if (typeof run === 'function') {
-          run();
-        }
+        if (typeof run === 'function') run();
       });
     }
   });
-
-  // 4. ميزة إضافية: تنبيه عند الحفظ (يظهر في الكونسول فقط)
-  console.log("Wesam System: Auto-Save & History Active ✅");
-</script> updatePreview();
-        };
-    </script>
-</body>
-
-</html>
+207:   console.log("Wesam System: Active ✅");
+208: </script>
+209: 
+210: </body>
+211: </html>
