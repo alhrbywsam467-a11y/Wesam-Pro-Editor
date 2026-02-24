@@ -2,122 +2,550 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Wesam AI Editor Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wesam AI Pro - محرر الكود المتطور</title>
+    <!-- خطوط وأيقونات جذابة -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- مكتبة لتلوين النصوص البرمجية -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <style>
-        * { box-sizing: border-box; }
-        html, body { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #1e1e1e; color: #d4d4d4; 
-            font-family: 'Segoe UI', sans-serif; overflow: hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .app-container { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
-        .content-area { flex: 1; display: flex; overflow: hidden; }
-        .vs-sidebar {
-            width: 50px; background: #333333; border-left: 1px solid #252526;
-            display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 15px;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            height: 100vh;
+            overflow: hidden;
         }
-        .icon-btn { 
-            width: 35px; height: 35px; background: #444; border-radius: 5px; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white;
+
+        /* شريط العنوان العلوي */
+        .top-bar {
+            background: #161b22;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #30363d;
         }
-        .icon-btn:hover { background: #007acc; }
-        .editors-container { flex: 1; display: flex; flex-direction: column; border-left: 1px solid #3c3c3c; gap: 2px; background: #252526; }
-        .editor-box { flex: 1; display: flex; flex-direction: column; background: #1e1e1e; position: relative; }
-        .pane-title { background: #2d2d2d; padding: 5px 15px; font-size: 11px; color: #007acc; border-bottom: 1px solid #3c3c3c; font-weight: bold; }
-        .ai-ghost { position: absolute; top: 27px; left: 10px; right: 10px; font-family: 'Consolas', monospace; font-size: 14px; color: rgba(156, 220, 254, 0.2); pointer-events: none; white-space: pre-wrap; z-index: 1; line-height: 1.5; }
-        textarea { flex: 1; background: transparent; color: #9cdcfe; padding: 10px; font-family: 'Consolas', monospace; font-size: 14px; border: none; outline: none; resize: none; z-index: 2; position: relative; line-height: 1.5; }
-        .preview-pane { flex: 1; background: white; display: flex; flex-direction: column; }
-        iframe { flex: 1; border: none; width: 100%; height: 100%; background: white; }
-        .status-bar { height: 25px; background: #007acc; color: white; font-size: 12px; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            background: #238636;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 30px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: #30363d;
+            border-color: #8b949e;
+        }
+
+        .tool-btn i {
+            font-size: 1rem;
+        }
+
+        .run-btn {
+            background: #238636;
+            border-color: #2ea043;
+        }
+
+        .run-btn:hover {
+            background: #2ea043;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+
+        /* الحاوية الرئيسية */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 110px);
+        }
+
+        /* قسم المحررات (الجزء الأيمن) */
+        .editors-section {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background: #0d1117;
+            border-left: 1px solid #30363d;
+        }
+
+        .editor-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0d1117;
+            border-bottom: 1px solid #30363d;
+            position: relative;
+        }
+
+        .tab-header {
+            background: #161b22;
+            padding: 6px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .tab-header i {
+            font-size: 1rem;
+        }
+
+        .html-icon { color: #e34c26; }
+        .css-icon { color: #264de4; }
+        .js-icon { color: #f7df1e; }
+
+        .tab-header span {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 15px;
+            border: none;
+            outline: none;
+            resize: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .ai-ghost {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(88, 166, 255, 0.25);
+            pointer-events: none;
+            white-space: pre-wrap;
+            z-index: 1;
+        }
+
+        /* قسم المعاينة */
+        .preview-section {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .preview-header {
+            background: #161b22;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .preview-header span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .fullscreen-btn {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* شريط الحالة السفلي */
+        .status-bar {
+            background: #161b22;
+            height: 30px;
+            border-top: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            justify-content: space-between;
+        }
+
+        /* قائمة القوالب */
+        .template-dropdown {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* رسائل التنبيه */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            background: #238636;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="content-area">
-            <div class="vs-sidebar">
-                <div class="icon-btn" onclick="downloadProject()" title="تحميل">⬇️</div>
-                <div class="icon-btn" onclick="undoDelete()" title="تراجع (Ctrl+Z)">🔄</div>
-                <div class="icon-btn" onclick="alert('الذكاء فعال!')">🤖</div>
+    <!-- الشريط العلوي -->
+    <div class="top-bar">
+        <div class="logo-area">
+            <span class="logo">🚀 Wesam AI Pro</span>
+            <span class="badge">v2.0</span>
+        </div>
+        <div class="toolbar">
+            <select class="template-dropdown" id="templateSelector">
+                <option value="">📁 قوالب جاهزة</option>
+                <option value="blank">فارغ</option>
+                <option value="profile">بطاقة تعريفية</option>
+                <option value="clock">ساعة رقمية</option>
+                <option value="counter">عداد تفاعلي</option>
+            </select>
+            <div class="tool-btn" id="autoRunBtn" title="تشغيل تلقائي">
+                <i class="fas fa-play-circle"></i> تلقائي
             </div>
-            <div class="editors-container">
-                <div class="editor-box">
-                    <div class="pane-title" style="color: #e34c26;">HTML</div>
-                    <div id="html-ghost" class="ai-ghost"></div>
-                    <textarea id="html-code" spellcheck="false" oninput="handleAI('html')"></textarea>
-                </div>
-                <div class="editor-box">
-                    <div class="pane-title" style="color: #264de4;">CSS</div>
-                    <div id="css-ghost" class="ai-ghost"></div>
-                    <textarea id="css-code" spellcheck="false" oninput="handleAI('css')"></textarea>
-                </div>
-                <div class="editor-box">
-                    <div class="pane-title" style="color: #f7df1e;">JS</div>
-                    <div id="js-ghost" class="ai-ghost"></div>
-                    <textarea id="js-code" spellcheck="false" oninput="handleAI('js')"></textarea>
-                </div>
+            <div class="tool-btn run-btn" id="manualRunBtn">
+                <i class="fas fa-sync-alt"></i> تشغيل
             </div>
-            <div class="preview-pane">
-                <div class="pane-title" style="background:#f3f3f3; color:#333;">Live Preview</div>
-                <iframe id="wesam-result"></iframe>
+            <div class="tool-btn" onclick="downloadProject()">
+                <i class="fas fa-download"></i> تحميل
+            </div>
+            <div class="tool-btn" onclick="clearAll()">
+                <i class="fas fa-trash-alt"></i> تفريغ
             </div>
         </div>
-        <div class="status-bar">
-            <span>Wesam Pro AI | تراجع عن الحذف: Ctrl + Z</span>
-            <span id="char-count">Chars: 0</span>
+        <div class="stats">
+            <span id="wordCount">⏎ 0 سطر</span>
+            <span id="charCount">📝 0 حرف</span>
         </div>
     </div>
 
+    <!-- المحتوى الرئيسي -->
+    <div class="main-container">
+        <!-- قسم المحررات -->
+        <div class="editors-section">
+            <div class="editor-tab">
+                <div class="tab-header">
+                    <i class="fab fa-html5 html-icon"></i>
+                    <span>HTML</span>
+                </div>
+                <div class="editor-wrapper">
+                    <div id="html-ghost" class="ai-ghost"></div>
+                    <textarea id="html-code" spellcheck="false" placeholder="اكتب HTML هنا..."></textarea>
+                </div>
+            </div>
+            <div class="editor-tab">
+                <div class="tab-header">
+                    <i class="fab fa-css3-alt css-icon"></i>
+                    <span>CSS</span>
+                </div>
+                <div class="editor-wrapper">
+                    <div id="css-ghost" class="ai-ghost"></div>
+                    <textarea id="css-code" spellcheck="false" placeholder="اكتب CSS هنا..."></textarea>
+                </div>
+            </div>
+            <div class="editor-tab">
+                <div class="tab-header">
+                    <i class="fab fa-js js-icon"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="editor-wrapper">
+                    <div id="js-ghost" class="ai-ghost"></div>
+                    <textarea id="js-code" spellcheck="false" placeholder="اكتب JavaScript هنا..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المعاينة -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <span><i class="fas fa-eye" style="color: #58a6ff;"></i> المعاينة المباشرة</span>
+                <div class="preview-actions">
+                    <button class="fullscreen-btn" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> ملء الشاشة</button>
+                </div>
+            </div>
+            <iframe id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <!-- شريط الحالة -->
+    <div class="status-bar">
+        <span><i class="fas fa-robot" style="margin-left: 5px;"></i> AI Ghost: اكتب لترى الاقتراحات</span>
+        <span>Ctrl + Z للتراجع عن الحذف</span>
+    </div>
+
+    <!-- رسالة منبثقة -->
+    <div id="toast" class="toast">تم التحميل</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
+        // العناصر
         const htmlInput = document.getElementById('html-code');
         const cssInput = document.getElementById('css-code');
         const jsInput = document.getElementById('js-code');
-        const output = document.getElementById('wesam-result');
+        const previewFrame = document.getElementById('preview-frame');
+        const htmlGhost = document.getElementById('html-ghost');
+        const cssGhost = document.getElementById('css-ghost');
+        const jsGhost = document.getElementById('js-ghost');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const toast = document.getElementById('toast');
+        const autoRunBtn = document.getElementById('autoRunBtn');
+        const manualRunBtn = document.getElementById('manualRunBtn');
+        const templateSelector = document.getElementById('templateSelector');
 
-        // الحفظ التلقائي وتحديث المعاينة
+        let autoRun = true;
+
+        // دالة عرض الإشعارات
+        function showToast(message) {
+            toast.textContent = message;
+            toast.style.opacity = 1;
+            setTimeout(() => {
+                toast.style.opacity = 0;
+            }, 2000);
+        }
+
+        // تحديث الإحصائيات
+        function updateStats() {
+            const html = htmlInput.value;
+            const css = cssInput.value;
+            const js = jsInput.value;
+            const totalChars = html.length + css.length + js.length;
+            const totalLines = (html + css + js).split('\n').length;
+            charCount.innerHTML = `📝 ${totalChars} حرف`;
+            wordCount.innerHTML = `⏎ ${totalLines} سطر`;
+        }
+
+        // تحديث المعاينة
         function updatePreview() {
-            const code = `<!DOCTYPE html><html><head><style>${cssInput.value}</style></head><body>${htmlInput.value}<script>${jsInput.value}<\/script></body></html>`;
-            output.srcdoc = code;
+            const code = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>${cssInput.value}</style>
+                </head>
+                <body>
+                    ${htmlInput.value}
+                    <script>${jsInput.value}<\/script>
+                </body>
+                </html>
+            `;
+            previewFrame.srcdoc = code;
 
+            // حفظ تلقائي
             localStorage.setItem('w_html', htmlInput.value);
             localStorage.setItem('w_css', cssInput.value);
             localStorage.setItem('w_js', jsInput.value);
-            document.getElementById('char-count').innerText = "Chars: " + (htmlInput.value.length + cssInput.value.length + jsInput.value.length);
+            
+            updateStats();
         }
 
-        // دالة التراجع (استرجاع المحفوظ)
-        function undoDelete() {
-            htmlInput.value = localStorage.getItem('w_html') || "";
-            cssInput.value = localStorage.getItem('w_css') || "";
-            jsInput.value = localStorage.getItem('w_js') || "";
+        // مزامنة النصوص مع Ghost (تأثير ذكي)
+        function syncEditors() {
+            htmlGhost.innerText = htmlInput.value.replace(/[^\s]/g, '') ? '' : '<!-- اكتب هنا... -->';
+            cssGhost.innerText = cssInput.value.replace(/[^\s]/g, '') ? '' : '/* اكتب CSS */';
+            jsGhost.innerText = jsInput.value.replace(/[^\s]/g, '') ? '' : '// اكتب JavaScript';
+            
+            if (autoRun) updatePreview();
+        }
+
+        // أحداث الإدخال
+        htmlInput.addEventListener('input', syncEditors);
+        cssInput.addEventListener('input', syncEditors);
+        jsInput.addEventListener('input', syncEditors);
+
+        // زر التشغيل اليدوي
+        manualRunBtn.addEventListener('click', updatePreview);
+
+        // تبديل التشغيل التلقائي
+        autoRunBtn.addEventListener('click', () => {
+            autoRun = !autoRun;
+            autoRunBtn.style.background = autoRun ? '#238636' : '#21262d';
+            autoRunBtn.innerHTML = autoRun ? '<i class="fas fa-play-circle"></i> تلقائي' : '<i class="fas fa-stop-circle"></i> يدوي';
+            showToast(autoRun ? '✓ التشغيل التلقائي مفعل' : '✓ التشغيل اليدوي مفعل');
+        });
+
+        // تحميل القوالب
+        templateSelector.addEventListener('change', (e) => {
+            const template = e.target.value;
+            if (template === 'blank') {
+                htmlInput.value = '<h1>مرحباً</h1>';
+                cssInput.value = 'h1 { color: blue; }';
+                jsInput.value = 'console.log("مرحباً");';
+            } else if (template === 'profile') {
+                htmlInput.value = '<div class="card"><h2>وسام AI</h2><p>مطور واجهات أمامية</p><button onclick="showMessage()">اضغط هنا</button></div>';
+                cssInput.value = '.card { padding: 20px; border-radius: 10px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-align: center; max-width: 300px; margin: auto; } button { background: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }';
+                jsInput.value = 'function showMessage() { alert("أهلاً بك في موقع وسام!"); }';
+            } else if (template === 'clock') {
+                htmlInput.value = '<div class="clock" id="clock"></div>';
+                cssInput.value = '.clock { font-size: 48px; text-align: center; margin-top: 50px; font-family: monospace; background: #333; color: #0f0; padding: 20px; border-radius: 10px; }';
+                jsInput.value = 'function updateClock() { document.getElementById("clock").innerText = new Date().toLocaleTimeString(); } setInterval(updateClock, 1000); updateClock();';
+            } else if (template === 'counter') {
+                htmlInput.value = '<div class="counter"><h1>0</h1><button onclick="increment()">+</button><button onclick="decrement()">-</button></div>';
+                cssInput.value = '.counter { text-align: center; } button { margin: 10px; padding: 10px 20px; font-size: 18px; }';
+                jsInput.value = 'let count = 0; function increment() { count++; document.querySelector("h1").innerText = count; } function decrement() { count--; document.querySelector("h1").innerText = count; }';
+            }
+            
+            syncEditors();
             updatePreview();
+            showToast('✅ تم تحميل القالب');
+            templateSelector.value = '';
+        });
+
+        // تفريغ الكل
+        function clearAll() {
+            htmlInput.value = '';
+            cssInput.value = '';
+            jsInput.value = '';
+            syncEditors();
+            updatePreview();
+            showToast('🗑️ تم التفريغ');
         }
 
-        // تفعيل اختصار Ctrl + Z
-        window.addEventListener('keydown', function(e) {
+        // ملء الشاشة للمعاينة
+        function toggleFullscreen() {
+            if (previewFrame.requestFullscreen) {
+                previewFrame.requestFullscreen();
+            }
+        }
+
+        // تنزيل المشروع
+        function downloadProject() {
+            const final = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>${cssInput.value}</style>
+                </head>
+                <body>
+                    ${htmlInput.value}
+                    <script>${jsInput.value}<\/script>
+                </body>
+                </html>
+            `;
+            const blob = new Blob([final], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'my-project.html';
+            a.click();
+            showToast('📥 تم التحميل');
+        }
+
+        // التراجع عن الحذف
+        function undoDelete() {
+            htmlInput.value = localStorage.getItem('w_html') || '';
+            cssInput.value = localStorage.getItem('w_css') || '';
+            jsInput.value = localStorage.getItem('w_js') || '';
+            syncEditors();
+            updatePreview();
+            showToast('🔄 تم التراجع');
+        }
+
+        // اختصار Ctrl+Z
+        window.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'z') {
-                // إذا كانت الخانة فارغة، نسحب النسخة المحفوظة
-                if (htmlInput.value === "" && cssInput.value === "" && jsInput.value === "") {
+                e.preventDefault();
+                if (htmlInput.value === '' && cssInput.value === '' && jsInput.value === '') {
                     undoDelete();
                 }
             }
         });
 
-        // ذكاء اصطناعي بسيط (Ghost Text)
-        function handleAI(type) {
-            updatePreview();
-        }
-
-        function downloadProject() {
-            const final = `<!DOCTYPE html><html><head><style>${cssInput.value}</style></head><body>${htmlInput.value}<script>${jsInput.value}<\/script></body></html>`;
-            const blob = new Blob([final], {type: 'text/html'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob); a.download = "index.html"; a.click();
-        }
-
+        // تحميل البيانات المحفوظة
         window.onload = () => {
-            htmlInput.value = localStorage.getItem('w_html') || "<h1>أهلاً وسام</h1>";
-            cssInput.value = localStorage.getItem('w_css') || "";
-            jsInput.value = localStorage.getItem('w_js') || "";
+            htmlInput.value = localStorage.getItem('w_html') || '<h1>أهلاً بك في Wesam AI Pro</h1>';
+            cssInput.value = localStorage.getItem('w_css') || 'body { font-family: Arial; } h1 { color: #58a6ff; }';
+            jsInput.value = localStorage.getItem('w_js') || 'console.log("مرحباً بالعالم");';
+            syncEditors();
             updatePreview();
         };
     </script>
